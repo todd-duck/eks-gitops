@@ -54,7 +54,7 @@ spec:
     git:
       revision: master
       paths:
-      - getstarted/eks-gitops/specfiles/
+      - specfiles/
     helm: null
   variables: []
 ---
@@ -64,7 +64,7 @@ metadata:
   name: eks-gitops
 spec:
   repositoryType: GitRepository
-  endpoint: https://github.com/todd-duck/getstarted.git
+  endpoint: https://github.com/todd-duck/eks-gitops.git
   insecure: false
   caCert: ""
   credentialType: UserPassCredential
