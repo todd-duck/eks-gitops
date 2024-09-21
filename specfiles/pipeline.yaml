@@ -1,0 +1,85 @@
+apiVersion: pipeline.rafay.dev/v2
+kind: Pipeline
+metadata:
+  name: gitops-eks-pipeline
+spec:
+  edges: []
+  stages:
+  - name: cluster-action
+    stageType: InfraProvisionerStage
+    stageConfig:
+      approval: null
+      deployment: null
+      onFailure: Stop
+      workdloadTemplate: null
+      infraProvisioner:
+        infraProvisionerName: gitops-eks-infraprovisioner
+        actionConfig:
+          terraform:
+            type: TerraformActionApply
+            norefresh: false
+            targets: []
+            destroy: false
+        config:
+          terraform:
+            version: 0.15.0
+            inputVars: []
+            tfvarsFile: ""
+            envVars: null
+            backendConfig: null
+        gitRevision: main
+        useWorkingDirFrom: ""
+        persistWorkingDir: false
+        agentNames:
+        - gitops-eks-agent
+    variables: []
+    preConditions:
+    - conditionType: EvaluateExpression
+      config:
+        parentname: ""
+        parents: []
+---
+apiVersion: pipeline.rafay.dev/v2
+kind: Trigger
+metadata:
+  name: gitops-eks-trigger
+spec:
+  triggerType: WebhookTrigger
+  pipelineRef: gitops-eks-pipeline
+  repositoryRef: gitops-eks-repo
+  triggerConfig:
+    webhook:
+      configType: Github
+  repositoryConfig:
+    git:
+      revision: master
+      paths:
+      - getstarted/eks-gitops/specfiles/
+    helm: null
+  variables: []
+---
+apiVersion: config.rafay.dev/v2
+kind: Repository
+metadata:
+  name: eks-gitops
+spec:
+  repositoryType: GitRepository
+  endpoint: https://github.com/todd-duck/getstarted.git
+  insecure: false
+  caCert: ""
+  credentialType: UserPassCredential
+  credentials:
+    userPass:
+      username: todd-duck
+      password: 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
+  agentNames:
+  - "todd-gitops-eks-demo"
+---
+apiVersion: config.rafay.dev/v2
+kind: Agent
+metadata:
+  name: todd-gitops-eks-demo
+spec:
+  template:
+    type: ClusterAgent
+    clusterName: todd-gitops-eks-demo

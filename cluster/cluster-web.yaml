@@ -1,0 +1,51 @@
+apiVersion: infra.k8smgmt.io/v3
+kind: Cluster
+metadata:
+  name: todd-gitops-eks-demo
+  project: tcox-project01
+spec:
+  blueprintConfig:
+    name: default
+    version: latest
+  cloudCredentials: todd-dev-sandbox-aws-key
+  config:
+    availabilityZones:
+    - us-west-2a
+    - us-west-2b
+    addons:
+    - name: kube-proxy
+      version: latest
+    - name: vpc-cni
+      version: latest
+    - name: coredns
+      version: latest
+    managedNodeGroups:
+    - amiFamily: AmazonLinux2
+      availabilityZones:
+      - us-west-2a
+      - us-west-2b
+      desiredCapacity: 1
+      iam:
+        withAddonPolicies:
+          albIngress: true
+          autoScaler: false
+      instanceType: t3.medium
+      maxSize: 2
+      minSize: 1
+      name: managed-ng1
+    metadata:
+      name: todd-gitops-eks-demo
+      region: us-west-2
+      tags:
+        email: todd@rafay.co
+        env: dev
+      version: latest
+    vpc:
+      autoAllocateIPv6: false
+      clusterEndpoints:
+        privateAccess: true
+        publicAccess: true
+      cidr: 192.168.0.0/16
+      nat:
+        gateway: Single
+  type: aws-eks
